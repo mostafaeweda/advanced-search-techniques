@@ -1,9 +1,12 @@
 package list;
 
+import java.util.Comparator;
+
 public class SortedList<E> extends AbstractList<E> {
 
-	public SortedList(int size) {
+	public SortedList(int size, Comparator<E> comp) {
 		super(size);
+		this.comp = comp;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -15,7 +18,10 @@ public class SortedList<E> extends AbstractList<E> {
 		if (i < size) {
 			for (int j = size - 1; j >= i;j--)
 				elements[j+1] = elements[j];
+			elements[i] = e;
+			size++;
 		}
-		elements[size++] = e;
+		else
+			elements[size++] = e;
 	}
 }

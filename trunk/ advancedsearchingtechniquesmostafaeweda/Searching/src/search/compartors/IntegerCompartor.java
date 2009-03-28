@@ -1,4 +1,4 @@
-package compartors;
+package search.compartors;
 
 import java.util.Comparator;
 

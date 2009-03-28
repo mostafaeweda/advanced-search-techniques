@@ -8,6 +8,7 @@ public class BST<E, C extends Comparator<E>> {
 	protected BinaryNode<E> root;
 	protected C comp;
 	protected int size;
+	private int comparisons;
 
 	public BST(C comp) {
 		this.comp = comp;
@@ -56,7 +57,7 @@ public class BST<E, C extends Comparator<E>> {
 			temp.setParent(r);
 			r.hr = Math.max((r.right()).hl, (r.right()).hr) + 1;
 		}
-		if (Math.abs(r.hl - r.hr) > 1)
+		if (Math.abs(r.hl - r.hr) > 2)
 			r =  balance(r);
 		return r;
 	}
@@ -68,13 +69,19 @@ public class BST<E, C extends Comparator<E>> {
 	public E find(E element) {
 		if (size == 0)
 			return null;
-		return find(root, element).element();
+		BinaryNode<E> temp = find(root, element);
+		if (temp == null)
+			return null;
+		else
+			return temp.element();
 	}
 
-	public BinaryNode<E> find(BinaryNode<E> root, E element) {
+	protected BinaryNode<E> find(BinaryNode<E> root, E element) {
 		BinaryNode<E> next = root;
 		int comparison = 0;
+		comparisons = 0;
 		while (next != null) {
+			comparisons++;
 			comparison = comp.compare(element, next.element());
 			if (comparison < 0) {
 				// element < node.element --> move left
@@ -89,24 +96,23 @@ public class BST<E, C extends Comparator<E>> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	public BinaryNode<E>[] findAll(E element) {
+	public Object[] findAll(E element) {
 		if (size == 0)
 			return null;
-		BinaryNode<E>[] found = new BinaryNode[10];
+		Object[] found = new Object[10];
 		BinaryNode<E> temp = find(root, element);
 		int counter = 0;
 		while (temp != null && comp.compare(element, temp.element()) == 0) {
 			if (counter == found.length) {
-				BinaryNode<E>[] newFound = new BinaryNode[2 * found.length];
+				Object[] newFound = new Object[2 * found.length];
 				for (int i = 0; i < counter; i++)
 					newFound[i] = found[i];
 				found = newFound;
 			}
-			found[counter++] = temp;
+			found[counter++] = temp.element();
 			temp = temp.right();
 		}
-		BinaryNode<E>[] newFound = new BinaryNode[counter];
+		Object[] newFound = new Object[counter];
 		for (int i = 0; i < counter; i++)
 			newFound[i] = found[i];
 		found = newFound;
@@ -223,5 +229,9 @@ public class BST<E, C extends Comparator<E>> {
 		buffer.append("\n\n Size: ");
 		buffer.append(size);
 		return buffer.toString();
+	}
+
+	public int getComparsons() {
+		return comparisons;
 	}
 }
