@@ -13,11 +13,16 @@ public class SequentialSearch<E, K extends Comparator<E>> extends AbstractSearch
 
 	@Override
 	public E find(E e) {
+		long start = System.nanoTime();
 		for (int i = 0, n = list.size(); i < n; i++) {
 			E temp = list.get(i);
-			if (comp.compare(e, temp) == 0)
+			if (comp.compare(e, temp) == 0) {
+				comparisons = i + 1;
+				runningTime = System.nanoTime() - start;
 				return temp;
+			}
 		}
+		runningTime = System.nanoTime() - start;
 		return null;
 	}
 
