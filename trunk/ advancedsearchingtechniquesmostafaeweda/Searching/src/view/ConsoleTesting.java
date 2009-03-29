@@ -29,34 +29,45 @@ import controller.MainController;
 public class ConsoleTesting {
 
 	private static final int CONST_STEP = 100;
+	private static final int ACCURACY = 60;
 	private static int SIZE = 100;
 	private static int STEP = 1;
 
 	private MainController controller;
 	private PrintWriter reportWriter;
 	private StringBuffer avgBuffer;
-	private PrintWriter averageWriter;
+	private PrintWriter averageCompWriter;
+	private PrintWriter maxValueWriter;
+	private PrintWriter averageTimeWriter;
+	private PrintWriter maxTimeWriter;
 
 	public void run() throws IOException {
 		avgBuffer = new StringBuffer();
 		controller = new MainController();
 		reportWriter = new PrintWriter(new BufferedWriter(new FileWriter(
 				"report.csv")));
-		averageWriter = new PrintWriter(new BufferedWriter(new FileWriter(
-				"charts.csv")));
+		averageCompWriter = new PrintWriter(new BufferedWriter(new FileWriter(
+				"avergae omparisons.csv")));
+		maxValueWriter = new PrintWriter(new BufferedWriter(new FileWriter("max comparisons.csv")));
+		averageTimeWriter = new PrintWriter(new BufferedWriter(new FileWriter("average time.csv")));
+		maxTimeWriter = new PrintWriter(new BufferedWriter(new FileWriter("max time.csv")));
 		avgBuffer.append("\n,,Sorted Searching,,,,,,Unsorted Searching,,");
-		avgBuffer.append("\n\nlist Size, Sequential, Binary, BST, AVL, Interpolation, ,Sequential, BST, AVL\n");
-		for (int i = 1; i <= 60; i++) {
+		avgBuffer.append("\n\nlist Size, Sequential, Binary, BST, AVL, Interpolation," +
+				",Sequential, BST, AVL\n");
+		String common = avgBuffer.toString();
+		maxValueWriter.print(common);
+		averageTimeWriter.print(common);
+		maxTimeWriter.print(common);
+		for (int i = 1; i <= ACCURACY; i++) {
 			try {
 				System.out.println(i);
 				SIZE = i * CONST_STEP;
-				AbstractList<Integer> sorted = controller
-						.generateSortedList(SIZE);
-				AbstractList<Integer> unsorted = controller
-						.generateUnsortedList(SIZE);
+				AbstractList<Integer> sorted = controller.generateSortedList(SIZE);
+				AbstractList<Integer> unsorted = controller.generateUnsortedList(SIZE);
 				testSorted(sorted);
 				testUnsorted(unsorted);
-				averageWriter.print(avgBuffer.toString());
+				averageCompWriter.print(avgBuffer.toString());
+				System.out.println(avgBuffer.toString());
 			} catch (Throwable e1) {
 				e1.printStackTrace();
 				System.out.println(i);
@@ -64,20 +75,30 @@ public class ConsoleTesting {
 			avgBuffer = new StringBuffer();
 		}
 		reportWriter.close();
-		averageWriter.close();
+		averageCompWriter.close();
+		maxValueWriter.close();
+		averageTimeWriter.close();
+		maxTimeWriter.close();
 	}
 
 	public void sequentialSearch(AbstractList<Integer> list) {
 		reportWriter.println("\nSequential Search");
 		AbstractSearch<Integer, IntegerCompartor> search = new SequentialSearch<Integer, IntegerCompartor>(
 				list, new IntegerCompartor());
-		avgBuffer.append(", ");
+		writeAll(", ");
 		testAll(list, search);
+	}
+
+	private void writeAll(String string) {
+		avgBuffer.append(string);
+		maxValueWriter.append(string);
+		averageTimeWriter.append(string);
+		maxTimeWriter.append(string);
 	}
 
 	private void testAll(AbstractList<Integer> list,
 			AbstractSearch<Integer, IntegerCompartor> search) {
-		int worstComparisons = 0;
+		int maxComparisons = 0;
 		int compars;
 		long maxRun = 0;
 		long runningTime;
@@ -91,25 +112,28 @@ public class ConsoleTesting {
 			allCopmar += compars;
 			reportWriter.println(list.get(i) + ", " + runningTime + ", "
 					+ compars);
-			if (compars > worstComparisons)
-				worstComparisons = compars;
+			if (compars > maxComparisons)
+				maxComparisons = compars;
 			if (runningTime > maxRun)
 				maxRun = runningTime;
 		}
 		reportWriter
 				.println("\nMax numer of comparisons, average comparisons,"
 						+ "Max running time in nano seconds, Max running time in milli seconds, average time in nanos");
-		reportWriter.println(worstComparisons + ", " + allCopmar
+		reportWriter.println(maxComparisons + ", " + allCopmar
 				/ (list.size() / STEP) + ", " + maxRun + "," + maxRun / 1000000
 				+ ", " + allRun / (list.size() / STEP));
 		avgBuffer.append(allCopmar / (list.size() / STEP));
+		maxValueWriter.print(maxComparisons);
+		maxTimeWriter.print(maxRun);
+		averageTimeWriter.print(allRun / (list.size() / STEP));
 	}
 
 	public void AVLSearch(AbstractList<Integer> list) {
 		AbstractSearch<Integer, IntegerCompartor> search = new AVLSearch<Integer, IntegerCompartor>(
 				list, new IntegerCompartor());
 		reportWriter.println("\n\nAVL Search");
-		avgBuffer.append(", ");
+		writeAll(", ");
 		testAll(list, search);
 	}
 
@@ -117,7 +141,7 @@ public class ConsoleTesting {
 		AbstractSearch<Integer, IntegerCompartor> search = new BSTSearch<Integer, IntegerCompartor>(
 				list, new IntegerCompartor());
 		reportWriter.println("\n\nBST Search");
-		avgBuffer.append(", ");
+		writeAll(", ");
 		testAll(list, search);
 	}
 
@@ -125,7 +149,7 @@ public class ConsoleTesting {
 		AbstractSearch<Integer, IntegerCompartor> search = new InterpolationSearch<Integer, IntegerCompartor>(
 				list, new IntegerCompartor());
 		reportWriter.println("\n\nInterpolation Search");
-		avgBuffer.append(", ");
+		writeAll(", ");
 		testAll(list, search);
 	}
 
@@ -133,7 +157,7 @@ public class ConsoleTesting {
 		AbstractSearch<Integer, IntegerCompartor> search = new BinarySearch<Integer, IntegerCompartor>(
 				list, new IntegerCompartor());
 		reportWriter.println("\n\nBinary Search");
-		avgBuffer.append(", ");
+		writeAll(", ");
 		testAll(list, search);
 	}
 
@@ -143,19 +167,19 @@ public class ConsoleTesting {
 		sequentialSearch(unsorted);
 		BSTSearch(unsorted);
 		AVLSearch(unsorted);
-		avgBuffer.append("\n");
+		writeAll("\r\n");
 	}
 
 	private void testSorted(AbstractList<Integer> sorted) {
 		reportWriter.println("Unsorted Searching");
 		reportWriter.println();
-		avgBuffer.append(SIZE);
+		writeAll("" + SIZE);
 		sequentialSearch(sorted);
 		binarySearch(sorted);
 		BSTSearch(sorted);
 		AVLSearch(sorted);
 		interpolationSearch(sorted);
-		avgBuffer.append(", ");
+		writeAll(", ");
 	}
 
 	public static void main(String[] args) throws IOException {

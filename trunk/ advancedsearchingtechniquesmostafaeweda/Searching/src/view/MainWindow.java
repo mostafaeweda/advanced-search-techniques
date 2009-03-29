@@ -9,7 +9,6 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -18,6 +17,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -57,10 +57,14 @@ public class MainWindow {
 		display = new Display();
 		shell = new Shell(display);
 		shell.setText("Searching Techniques");
+		shell.setMaximized(true);
+		shell.setText("Seaching Techniques");
 		createContents();
+		/*
 		Rectangle dispBounds = display.getBounds();
 		shell.setBounds(dispBounds.width / 16, dispBounds.height / 16,
 				7 * dispBounds.width / 8, 7 * dispBounds.height / 8);
+		 */
 		shell.open();
 		while (!shell.isDisposed())
 			if (!display.readAndDispatch())
@@ -88,13 +92,17 @@ public class MainWindow {
 		formData.right = new FormAttachment(100, 0);
 		Composite controls = new Composite(shell, SWT.NONE);
 		controls.setLayoutData(formData);
-		controls.setLayout(new GridLayout());
+		controls.setLayout(new GridLayout(2, false));
 
 		GridData gridData = new GridData(GridData.FILL_BOTH);
+		gridData.horizontalSpan = 2;
 
+		final CLabel keyLabel = new CLabel(controls, SWT.NONE);
+		keyLabel.setText("Key");
+		keyLabel.setFont(font);
 		final Text keyText = new Text(controls, SWT.BORDER | SWT.CENTER);
 		keyText.setFont(font);
-		keyText.setLayoutData(gridData);
+		keyText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		final Button sequential = new Button(controls, SWT.PUSH);
 		sequential.setText("Sequential");
 		sequential.setFont(font);
@@ -133,6 +141,7 @@ public class MainWindow {
 		insert.setText("Insert");
 		insert.setFont(font);
 		insert.setLayoutData(gridData);
+		insert.setEnabled(false);
 		final Button find = new Button(controls, SWT.RADIO);
 		find.setText("find ");
 		find.setFont(font);
@@ -158,6 +167,27 @@ public class MainWindow {
 		size.setFont(font);
 		size.setText("" + SORTED_SIZE);
 		size.setLayoutData(gridData);
+		final Button fileLoad = new Button(controls, SWT.PUSH);
+		fileLoad.setFont(font);
+		fileLoad.setText("Load data");
+		fileLoad.setToolTipText("loads a text file of any format");
+		fileLoad.setEnabled(false);
+		fileLoad.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog dialog = new FileDialog(shell, SWT.APPLICATION_MODAL);
+				String path = dialog.open();
+				if (path != null) {
+					AbstractList<Integer> list = controller.loadManual(path);
+					Table manual = (Table) folder.getSelection()[0].getData("table");
+					manual.setRedraw(false);
+					for (int i = 0, n = list.size(); i < n; i++) {
+						TableItem item = new TableItem(manual, SWT.NONE);
+						item.setText(list.get(i).toString());
+					}
+					manual.setRedraw(true);
+				}
+			}});
 		sequential.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				try {
@@ -310,7 +340,7 @@ public class MainWindow {
 				}
 				runningTime.setText(controller.runningTime().toString());
 				comparisons.setText(controller.getComparisons().toString());
-			}
+			}	
 		});
 		insert.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -319,15 +349,16 @@ public class MainWindow {
 						.getData("table");
 				String init;
 				if (manual.getItemCount() > 0)
-					init = manual.getItems()[manual.getItemCount() - 1]
-							.getText();
+					init = manual.getItems()[manual.getItemCount() - 1].getText();
 				else
 					init = "0";
 				IInputValidator validator = new IInputValidator() {
 					@Override
 					public String isValid(String newText) {
 						try {
-							Integer.parseInt(newText);
+							String[] vals = newText.split(",");
+							for (int i = 0; i < vals.length; i++)
+								Integer.parseInt(vals[i]);
 							return null;
 						} catch (NumberFormatException e1) {
 							return newText;
@@ -335,15 +366,17 @@ public class MainWindow {
 					}
 				};
 				InputDialog dialog = new InputDialog(shell, "Input",
-						"Enter value", init, validator);
+						"Enter comma seperated values", init, validator);
 				if (dialog.open() == InputDialog.OK) {
-					TableItem item = new TableItem(manual, SWT.CENTER);
-					item.setText(dialog.getValue());
-					TableColumn[] columns = manual.getColumns();
-					for (TableColumn tableColumn : columns) {
-						tableColumn.pack();
+					String val = dialog.getValue();
+					String[] values = val.split(",");
+					for (int i = 0; i < values.length; i++) {
+						TableItem item = new TableItem(manual, SWT.CENTER);
+						item.setText(values[i]);
 					}
-					controller.addManual(Integer.parseInt(dialog.getValue()));
+					for (int i = 0; i < values.length; i++) {
+						controller.addManual(Integer.parseInt(values[i]));
+					}
 					MANUAL_SIZE++;
 					size.setText("" + MANUAL_SIZE);
 				}
@@ -357,17 +390,20 @@ public class MainWindow {
 				shell.setData("table", current);
 				String tab = folder.getSelection()[0].getText();
 				if (tab.equals("Unsorted")) {
+					fileLoad.setEnabled(false);
 					binary.setEnabled(false);
 					interpolation.setEnabled(false);
 					insert.setEnabled(false);
 					size.setText("" + UNSORTED_SIZE);
 				} else if (tab.equals("Sorted")) {
+					fileLoad.setEnabled(false);
 					binary.setEnabled(true);
 					interpolation.setEnabled(true);
 					insert.setEnabled(false);
 					size.setText("" + SORTED_SIZE);
 					;
 				} else { // tab.equals("Manual");
+					fileLoad.setEnabled(true);
 					binary.setEnabled(false);
 					interpolation.setEnabled(false);
 					insert.setEnabled(true);
