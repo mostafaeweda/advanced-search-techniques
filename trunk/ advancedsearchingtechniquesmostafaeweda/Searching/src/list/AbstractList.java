@@ -44,4 +44,14 @@ public abstract class AbstractList<E> {
 	public int size() {
 		return size;
 	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Size: " + size);
+		buffer.append("Length: " + length);
+		for (Object element : elements) {
+			buffer.append("\n" + element.toString());
+		}
+		return buffer.toString();
+	}
 }

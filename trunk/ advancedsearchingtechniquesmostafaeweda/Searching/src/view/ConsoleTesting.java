@@ -15,6 +15,17 @@ import search.methods.InterpolationSearch;
 import search.methods.SequentialSearch;
 import controller.MainController;
 
+/**
+ * Implementation of test items that are used to analyze the data for the charts
+ * 
+ * @author Mostafa Mahmoud Mahmoud Eweda
+ * @version 1.0
+ * @since JDK 1.6
+ * 
+ * @see MainWindow
+ * for graphical user interface operations
+ *
+ */
 public class ConsoleTesting {
 
 	private static final int CONST_STEP = 100;
@@ -35,9 +46,9 @@ public class ConsoleTesting {
 				"charts.csv")));
 		avgBuffer.append("\n,,Sorted Searching,,,,,,Unsorted Searching,,");
 		avgBuffer.append("\n\nlist Size, Sequential, Binary, BST, AVL, Interpolation, ,Sequential, BST, AVL\n");
-		for (int i = 1; i < 50; i++) {
+		for (int i = 1; i <= 60; i++) {
 			try {
-				STEP = i;
+				System.out.println(i);
 				SIZE = i * CONST_STEP;
 				AbstractList<Integer> sorted = controller
 						.generateSortedList(SIZE);
@@ -47,8 +58,8 @@ public class ConsoleTesting {
 				testUnsorted(unsorted);
 				averageWriter.print(avgBuffer.toString());
 			} catch (Throwable e1) {
-//				e1.printStackTrace();
-//				System.out.println(i);
+				e1.printStackTrace();
+				System.out.println(i);
 			}
 			avgBuffer = new StringBuffer();
 		}
