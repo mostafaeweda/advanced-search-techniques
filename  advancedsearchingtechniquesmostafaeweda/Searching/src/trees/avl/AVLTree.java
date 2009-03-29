@@ -44,13 +44,23 @@ public class AVLTree<E, C extends Comparator<E>> extends BST<E, C> {
 
 	public BinaryNode<E> balance(BinaryNode<E> r) {
 		if (r.hl > r.hr) {
-			if (r.left().hr > r.left().hl)
-				r.setLeft(rotateLeft(r.left()));
+			if (r.left().hr > r.left().hl) {
+				BinaryNode<E> node = rotateLeft(r.left());
+				node.setParent(r);
+				r.setLeft(node);
+			}
+			BinaryNode<E> temp = r.parent();
 			r = rotateRight(r);
+			r.setParent(temp);
 		} else {
-			if (r.right().hl > r.right().hr)
-				r.setRight(rotateRight(r.right()));
+			if (r.right().hl > r.right().hr) {
+				BinaryNode<E> node = rotateRight(r.right());
+				node.setParent(r);
+				r.setRight(node);
+			}
+			BinaryNode<E> temp = r.parent();
 			r = rotateLeft(r);
+			r.setParent(temp);
 		}
 		return r;
 	}
@@ -63,9 +73,9 @@ public class AVLTree<E, C extends Comparator<E>> extends BST<E, C> {
 		A.setParent(B);
 		B.setLeft(A);
 		// B.hr = Math.max(B.right().hl, B.right().hr) + 1;
-		// B.hl = Math.max(A.hl, A.hr) + 1;
-		B.hl = (B.hasRight() ? Math.max(B.right().hl, B.right().hr) : 0) + 1;
-		B.hr = (B.hasLeft() ? Math.max(B.left().hl, B.left().hr) : 0) + 1;
+		// B.hl = Math.max(A.hl, A.hr) + 1; 
+		B.hr = B.hasRight() ? Math.max(B.right().hl, B.right().hr) + 1 : 0;
+		B.hl = B.hasLeft() ? Math.max(B.left().hl, B.left().hr) + 1 : 0;
 		return B;
 	}
 
@@ -78,13 +88,11 @@ public class AVLTree<E, C extends Comparator<E>> extends BST<E, C> {
 		B.setRight(A);
 		// B.hr = Math.max(A.hl, A.hr) + 1;
 		// B.hl = Math.max(B.left().hl, B.left().hr) + 1;
-		B.hl = (B.hasRight() ? Math.max(B.right().hl, B.right().hr) : 0) + 1;
-		B.hr = (B.hasLeft() ? Math.max(B.left().hl, B.left().hr) : 0) + 1;
+		B.hr = B.hasRight() ? Math.max(B.right().hl, B.right().hr) + 1 : 0;
+		if (B.hasLeft())
+			B.hl = Math.max(B.left().hl, B.left().hr) + 1;
+		else
+			B.hl = 0;
 		return B;
-	}
-
-	@Override
-	protected BinaryNode<E> newNode(E value) {
-		return new BinaryNode<E>(value);
 	}
 }
