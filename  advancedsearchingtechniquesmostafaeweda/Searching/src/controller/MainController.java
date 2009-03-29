@@ -1,5 +1,8 @@
 package controller;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 import list.AbstractList;
@@ -206,5 +209,20 @@ public class MainController {
 		AbstractList<Integer> list = listGetter(listType);
 		return new SequentialSearch<Integer, IntegerCompartor>(list,
 				new IntegerCompartor()).findAll(element);
+	}
+
+	public AbstractList<Integer> loadManual(String filePath) {
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(filePath));
+			int size = Integer.parseInt(in.readLine());
+			manualList = new UnsortedList<Integer>(size);;
+			String temp;
+			while ((temp = in.readLine()) != null) {
+				manualList.add(Integer.parseInt(temp));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return manualList;
 	}
 }
