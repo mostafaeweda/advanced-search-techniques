@@ -1,11 +1,13 @@
 package list;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 
 public abstract class AbstractList<E> {
 
 	protected Object[] elements;
+	ArrayList<String> s;
 	protected int size;
 	protected int length;
 	protected Comparator<E> comp;
