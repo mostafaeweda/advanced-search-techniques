@@ -103,7 +103,7 @@ public class MainController {
 
 	/** 
 	 * @param size the size of the list
-	 * @return an empty unsorted list of the given size
+	 * registers an empty unsorted list of the given size
 	 */
 	public void generateManualList(int size) {
 		manualList = new UnsortedList<Integer>(size);

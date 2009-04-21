@@ -289,16 +289,18 @@ public class BST<E, C extends Comparator<E>> {
 		buffer.append(node.element().toString() + " "); // output node data
 	}
 
-	public String inOrderTraversal() {
+	public String inOrderTraversal()
+	{
 		StringBuffer buffer = new StringBuffer();
 		inOrderHelper(root, buffer);
 		return buffer.toString();
 	}
 
 	/**
-	 * @return a string representation of the tree traversed in-orderly
+	 * Traversed the tree in-orderly
 	 */
-	private void inOrderHelper(BinaryNode<E> node, StringBuffer buffer) {
+	private void inOrderHelper(BinaryNode<E> node, StringBuffer buffer)
+	{
 		if (node == null)
 			return;
 		inOrderHelper(node.left(), buffer); // traverse left subtree
@@ -306,7 +308,8 @@ public class BST<E, C extends Comparator<E>> {
 		inOrderHelper(node.right(), buffer); // traverse right subtree
 	}
 
-	public String toString() {
+	public String toString()
+	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Pre-order Traverseal\n");
 		buffer.append(preOrderTraversal());
