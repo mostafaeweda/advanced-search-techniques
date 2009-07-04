@@ -40,7 +40,8 @@ import controller.MainController;
  * for analytical resulting methods --> suggested for charts drawing using Excel
  *
  */
-public class MainWindow {
+public class MainWindow
+{
 
 	private static String column = "Integers";
 	private static final int UNSORTED_SIZE = 5000;
@@ -52,7 +53,8 @@ public class MainWindow {
 	private MainController controller;
 	private Font font;
 
-	public void run() {
+	public void run()
+	{
 		controller = new MainController();
 		display = new Display();
 		shell = new Shell(display);
