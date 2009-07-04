@@ -1,8 +1,8 @@
 package search.methods;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import list.AbstractList;
-import list.SortedList;
 import list.UnsortedList;
 
 import org.junit.After;
